@@ -18,7 +18,7 @@ Add the following in your root composer.json file:
 ```json
 {
     "require": {
-        "linio/composer-parameter-handler": "~2.0"
+        "linio/composer-parameter-handler": "~3.0"
     },
     "scripts": {
         "post-install-cmd": [
