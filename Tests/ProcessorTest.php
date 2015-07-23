@@ -53,34 +53,83 @@ class ProcessorTest extends ProphecyTestCase
     public function provideInvalidConfiguration()
     {
         return array(
-            'no file' => array(
+            'yml: no file' => array(
                 array(),
                 'The extra.incenteev-parameters.file setting is required to use this script handler.',
             ),
-            'missing default dist file' => array(
+            'yml: no file type' => array(
                 array(
-                    'file' => 'fixtures/invalid/missing.yml',
+                    'file' => 'fixtures/existent/yml/dist.yml',
                 ),
-                'The dist file "fixtures/invalid/missing.yml.dist" does not exist. Check your dist-file config or create it.',
+                'The extra.incenteev-parameters.file-type setting is required to use this script handler.',
             ),
-            'missing custom dist file' => array(
+            'yml: missing default dist file' => array(
                 array(
-                    'file' => 'fixtures/invalid/missing.yml',
-                    'dist-file' => 'fixtures/invalid/non-existent.dist.yml',
+                    'file' => 'fixtures/invalid/yml/missing.yml',
+                    'file-type' => 'yml',
                 ),
-                'The dist file "fixtures/invalid/non-existent.dist.yml" does not exist. Check your dist-file config or create it.',
+                'The dist file "fixtures/invalid/yml/missing.yml.dist" does not exist. Check your dist-file config or create it.',
             ),
-            'missing top level key in dist file' => array(
+            'yml: missing custom dist file' => array(
                 array(
-                    'file' => 'fixtures/invalid/missing_top_level.yml',
+                    'file' => 'fixtures/invalid/yml/missing.yml',
+                    'dist-file' => 'fixtures/invalid/yml/non-existent.dist.yml',
+                    'file-type' => 'yml',
+                ),
+                'The dist file "fixtures/invalid/yml/non-existent.dist.yml" does not exist. Check your dist-file config or create it.',
+            ),
+            'yml: missing top level key in dist file' => array(
+                array(
+                    'file' => 'fixtures/invalid/yml/missing_top_level.yml',
+                    'file-type' => 'yml',
                 ),
                 'The top-level key parameters is missing.',
             ),
-            'invalid values in the existing file' => array(
+            'yml: invalid values in the existing file' => array(
                 array(
-                    'file' => 'fixtures/invalid/invalid_existing_values.yml',
+                    'file' => 'fixtures/invalid/yml/invalid_existing_values.yml',
+                    'file-type' => 'yml',
                 ),
-                'The existing "fixtures/invalid/invalid_existing_values.yml" file does not contain an array',
+                'The existing "fixtures/invalid/yml/invalid_existing_values.yml" file does not contain an array',
+            ),
+            'php: no file' => array(
+                array(),
+                'The extra.incenteev-parameters.file setting is required to use this script handler.',
+            ),
+            'php: no file type' => array(
+                array(
+                    'file' => 'fixtures/existent/php/dist.php',
+                ),
+                'The extra.incenteev-parameters.file-type setting is required to use this script handler.',
+            ),
+            'php: missing default dist file' => array(
+                array(
+                    'file' => 'fixtures/invalid/php/missing.php',
+                    'file-type' => 'php',
+                ),
+                'The dist file "fixtures/invalid/php/missing.php.dist" does not exist. Check your dist-file config or create it.',
+            ),
+            'php: missing custom dist file' => array(
+                array(
+                    'file' => 'fixtures/invalid/php/missing.php',
+                    'dist-file' => 'fixtures/invalid/php/non-existent.dist.php',
+                    'file-type' => 'php',
+                ),
+                'The dist file "fixtures/invalid/php/non-existent.dist.php" does not exist. Check your dist-file config or create it.',
+            ),
+            'php: missing top level key in dist file' => array(
+                array(
+                    'file' => 'fixtures/invalid/php/missing_top_level.php',
+                    'file-type' => 'php',
+                ),
+                'The top-level key parameters is missing.',
+            ),
+            'php: invalid values in the existing file' => array(
+                array(
+                    'file' => 'fixtures/invalid/php/invalid_existing_values.php',
+                    'file-type' => 'php',
+                ),
+                'The existing "fixtures/invalid/php/invalid_existing_values.php" file does not contain an array',
             ),
         );
     }
@@ -88,17 +137,18 @@ class ProcessorTest extends ProphecyTestCase
     /**
      * @dataProvider provideParameterHandlingTestCases
      */
-    public function testParameterHandling($testCaseName)
+    public function testParameterHandling($testCaseName, $fileType)
     {
-        $dataDir = __DIR__.'/fixtures/testcases/'.$testCaseName;
+        $dataDir = __DIR__.'/fixtures/testcases/'. $fileType . '/' .$testCaseName;
 
         $testCase = array_replace_recursive(
             array(
                 'title' => 'unknown test',
                 'config' => array(
-                    'file' => 'parameters.yml',
+                    'file' => 'parameters.' . $fileType,
+                    'file-type' => $fileType,
                 ),
-                'dist-file' => 'parameters.yml.dist',
+                'dist-file' => 'parameters.'. $fileType .'.dist',
                 'environment' => array(),
                 'interactive' => false,
             ),
@@ -106,7 +156,7 @@ class ProcessorTest extends ProphecyTestCase
         );
 
         $workingDir = sys_get_temp_dir() . '/incenteev_parameter_handler';
-        $exists = $this->initializeTestCase($testCase, $dataDir, $workingDir);
+        $exists = $this->initializeTestCase($testCase, $dataDir, $workingDir, $fileType);
 
         $message = sprintf('<info>%s the "%s" file</info>', $exists ? 'Updating' : 'Creating', $testCase['config']['file']);
         $this->io->write($message)->shouldBeCalled();
@@ -115,10 +165,10 @@ class ProcessorTest extends ProphecyTestCase
 
         $this->processor->processFile($testCase['config']);
 
-        $this->assertFileEquals($dataDir.'/expected.yml', $workingDir.'/'.$testCase['config']['file'], $testCase['title']);
+        $this->assertFileEquals($dataDir.'/expected.' . $fileType, $workingDir.'/'.$testCase['config']['file'], $testCase['title']);
     }
 
-    private function initializeTestCase(array $testCase, $dataDir, $workingDir)
+    private function initializeTestCase(array $testCase, $dataDir, $workingDir, $fileType)
     {
         $fs = new Filesystem();
 
@@ -126,10 +176,10 @@ class ProcessorTest extends ProphecyTestCase
             $fs->remove($workingDir);
         }
 
-        $fs->copy($dataDir.'/dist.yml', $workingDir.'/'. $testCase['dist-file']);
+        $fs->copy($dataDir.'/dist.' . $fileType, $workingDir.'/'. $testCase['dist-file']);
 
-        if ($exists = file_exists($dataDir.'/existing.yml')) {
-            $fs->copy($dataDir.'/existing.yml', $workingDir.'/'.$testCase['config']['file']);
+        if ($exists = file_exists($dataDir.'/existing.' . $fileType)) {
+            $fs->copy($dataDir.'/existing.' . $fileType, $workingDir.'/'.$testCase['config']['file']);
         }
 
         foreach ($testCase['environment'] as $var => $value) {
@@ -165,8 +215,12 @@ class ProcessorTest extends ProphecyTestCase
     {
         $tests = array();
 
-        foreach (glob(__DIR__.'/fixtures/testcases/*/') as $folder) {
-            $tests[] = array(basename($folder));
+        foreach (glob(__DIR__.'/fixtures/testcases/yml/*/') as $folder) {
+            $tests[] = array(basename($folder), 'yml');
+        }
+
+        foreach (glob(__DIR__.'/fixtures/testcases/php/*/') as $folder) {
+            $tests[] = array(basename($folder), 'php');
         }
 
         return $tests;

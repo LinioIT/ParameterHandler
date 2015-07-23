@@ -9,8 +9,8 @@ copied without change.
 [![Code Coverage](https://scrutinizer-ci.com/g/Incenteev/ParameterHandler/badges/coverage.png?s=ea5de28d9764fdcb6a576a41e244c0ac537b3c81)](https://scrutinizer-ci.com/g/Incenteev/ParameterHandler/)
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/Incenteev/ParameterHandler/badges/quality-score.png?s=6143d945bbdfac5c1114d4fe5d0f4ee737db18bf)](https://scrutinizer-ci.com/g/Incenteev/ParameterHandler/)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/3a432e49-6018-41a5-a37b-b7fb151706c1/mini.png)](https://insight.sensiolabs.com/projects/3a432e49-6018-41a5-a37b-b7fb151706c1)
-[![Latest Stable Version](https://poser.pugx.org/incenteev/composer-parameter-handler/v/stable.png)](https://packagist.org/packages/incenteev/composer-parameter-handler)
-[![Latest Unstable Version](https://poser.pugx.org/incenteev/composer-parameter-handler/v/unstable.png)](https://packagist.org/packages/incenteev/composer-parameter-handler)
+[![Latest Stable Version](https://poser.pugx.org/linio/composer-parameter-handler/v/stable.png)](https://packagist.org/packages/linio/composer-parameter-handler)
+[![Latest Unstable Version](https://poser.pugx.org/linio/composer-parameter-handler/v/unstable.png)](https://packagist.org/packages/linio/composer-parameter-handler)
 
 ## Usage
 
@@ -19,7 +19,7 @@ Add the following in your root composer.json file:
 ```json
 {
     "require": {
-        "incenteev/composer-parameter-handler": "~2.0"
+        "linio/composer-parameter-handler": "~2.0"
     },
     "scripts": {
         "post-install-cmd": [
@@ -31,7 +31,8 @@ Add the following in your root composer.json file:
     },
     "extra": {
         "incenteev-parameters": {
-            "file": "app/config/parameters.yml"
+            "file": "app/config/parameters.yml",
+            "file-type": "yml" # supported types: yml, php
         }
     }
 }
@@ -49,6 +50,7 @@ file, suffixed by ``.dist``. This can be changed in the configuration:
     "extra": {
         "incenteev-parameters": {
             "file": "app/config/parameters.yml",
+            "file-type": "yml",
             "dist-file": "some/other/folder/to/other/parameters/file/parameters.yml.dist"
         }
     }

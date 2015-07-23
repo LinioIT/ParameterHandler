@@ -1,8 +1,8 @@
 {
-    "name": "incenteev/composer-parameter-handler",
+    "name": "linio/composer-parameter-handler",
     "description": "Composer script handling your ignored parameter file",
     "keywords": ["parameters management"],
-    "homepage": "https://github.com/Incenteev/ParameterHandler",
+    "homepage": "https://github.com/LinioIT/ParameterHandler",
     "license": "MIT",
     "authors": [
         {

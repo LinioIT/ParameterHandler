@@ -1,0 +1,5 @@
+<?php
+
+return [
+    'another' => 'The parameters key is missing',
+];

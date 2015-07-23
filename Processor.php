@@ -3,13 +3,18 @@
 namespace Incenteev\ParameterHandler;
 
 use Composer\IO\IOInterface;
-use Symfony\Component\Yaml\Inline;
-use Symfony\Component\Yaml\Parser;
-use Symfony\Component\Yaml\Yaml;
 
 class Processor
 {
-    private $io;
+    /**
+     * @var IOInterface
+     */
+    protected $io;
+
+    /**
+     * @var FileHandlerInterface
+     */
+    protected $fileHandler;
 
     public function __construct(IOInterface $io)
     {
@@ -21,17 +26,16 @@ class Processor
         $config = $this->processConfig($config);
 
         $realFile = $config['file'];
+        $this->fileHandler = FileHandlerFactory::createFileHandler($config['file-type']);
         $parameterKey = $config['parameter-key'];
 
         $exists = is_file($realFile);
-
-        $yamlParser = new Parser();
 
         $action = $exists ? 'Updating' : 'Creating';
         $this->io->write(sprintf('<info>%s the "%s" file</info>', $action, $realFile));
 
         // Find the expected params
-        $expectedValues = $yamlParser->parse(file_get_contents($config['dist-file']));
+        $expectedValues = $this->fileHandler->load($config['dist-file']);
         if (!isset($expectedValues[$parameterKey])) {
             throw new \InvalidArgumentException(sprintf('The top-level key %s is missing.', $parameterKey));
         }
@@ -44,7 +48,7 @@ class Processor
             array($parameterKey => array())
         );
         if ($exists) {
-            $existingValues = $yamlParser->parse(file_get_contents($realFile));
+            $existingValues = $this->fileHandler->load($realFile);
             if ($existingValues === null) {
                 $existingValues = array();
             }
@@ -60,13 +64,17 @@ class Processor
             mkdir($dir, 0755, true);
         }
 
-        file_put_contents($realFile, "# This file is auto-generated during the composer install\n" . Yaml::dump($actualValues, 99));
+        $this->fileHandler->save($realFile, $actualValues);
     }
 
-    private function processConfig(array $config)
+    protected function processConfig(array $config)
     {
         if (empty($config['file'])) {
             throw new \InvalidArgumentException('The extra.incenteev-parameters.file setting is required to use this script handler.');
+        }
+
+        if (empty($config['file-type'])) {
+            throw new \InvalidArgumentException('The extra.incenteev-parameters.file-type setting is required to use this script handler.');
         }
 
         if (empty($config['dist-file'])) {
@@ -84,7 +92,7 @@ class Processor
         return $config;
     }
 
-    private function processParams(array $config, array $expectedParams, array $actualParams)
+    protected function processParams(array $config, array $expectedParams, array $actualParams)
     {
         // Grab values for parameters that were renamed
         $renameMap = empty($config['rename-map']) ? array() : (array) $config['rename-map'];
@@ -107,7 +115,7 @@ class Processor
         return $this->getParams($expectedParams, $actualParams);
     }
 
-    private function getEnvValues(array $envMap)
+    protected function getEnvValues(array $envMap)
     {
         $params = array();
         foreach ($envMap as $param => $env) {
@@ -118,18 +126,18 @@ class Processor
             }
 
             if (false !== strpos($param, '.')) {
-                $this->setValueByPath($params, $param, Inline::parse($value));
+                $this->setValueByPath($params, $param, $this->fileHandler->parseInline($value));
 
                 continue;
             }
 
-            $params[$param] = Inline::parse($value);
+            $params[$param] = $this->fileHandler->parseInline($value);
         }
 
         return $params;
     }
 
-    private function setValueByPath(array &$array, $path, $value)
+    protected function setValueByPath(array &$array, $path, $value)
     {
         $index = &$array;
 
@@ -140,7 +148,7 @@ class Processor
         $index = $value;
     }
 
-    private function processRenamedValues(array $renameMap, array $actualParams)
+    protected function processRenamedValues(array $renameMap, array $actualParams)
     {
         foreach ($renameMap as $param => $oldParam) {
             if (array_key_exists($param, $actualParams)) {
@@ -157,7 +165,7 @@ class Processor
         return $actualParams;
     }
 
-    private function getParams(array $expectedParams, array $actualParams)
+    protected function getParams(array $expectedParams, array $actualParams)
     {
         // Simply use the expectedParams value as default for the missing params.
         if (!$this->io->isInteractive()) {
@@ -176,10 +184,10 @@ class Processor
                 $this->io->write('<comment>Some parameters are missing. Please provide them.</comment>');
             }
 
-            $default = Inline::dump($message);
+            $default = $this->fileHandler->dumpInline($message);
             $value = $this->io->ask(sprintf('<question>%s</question> (<comment>%s</comment>): ', $key, $default), $default);
 
-            $actualParams[$key] = Inline::parse($value);
+            $actualParams[$key] = $this->fileHandler->parseInline($value);
         }
 
         return $actualParams;
