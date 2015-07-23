@@ -2,8 +2,8 @@
 
 namespace Incenteev\ParameterHandler\FileHandler;
 
-use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Inline;
+use Symfony\Component\Yaml\Yaml;
 
 class YamlHandler
 {

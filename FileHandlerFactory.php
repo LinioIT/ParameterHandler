@@ -25,6 +25,6 @@ class FileHandlerFactory
 
         $className = '\\Incenteev\\ParameterHandler\\FileHandler\\' . self::$handlers[$fileType];
 
-        return new $className;
+        return new $className();
     }
 }

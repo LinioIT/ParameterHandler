@@ -45,12 +45,12 @@ class Processor
         $actualValues = array_merge(
             // Preserve other top-level keys than `$parameterKey` in the file
             $expectedValues,
-            array($parameterKey => array())
+            [$parameterKey => []]
         );
         if ($exists) {
             $existingValues = $this->fileHandler->load($realFile);
             if ($existingValues === null) {
-                $existingValues = array();
+                $existingValues = [];
             }
             if (!is_array($existingValues)) {
                 throw new \InvalidArgumentException(sprintf('The existing "%s" file does not contain an array', $realFile));
@@ -78,7 +78,7 @@ class Processor
         }
 
         if (empty($config['dist-file'])) {
-            $config['dist-file'] = $config['file'].'.dist';
+            $config['dist-file'] = $config['file'] . '.dist';
         }
 
         if (!is_file($config['dist-file'])) {
@@ -95,7 +95,7 @@ class Processor
     protected function processParams(array $config, array $expectedParams, array $actualParams)
     {
         // Grab values for parameters that were renamed
-        $renameMap = empty($config['rename-map']) ? array() : (array) $config['rename-map'];
+        $renameMap = empty($config['rename-map']) ? [] : (array) $config['rename-map'];
         $actualParams = array_replace($actualParams, $this->processRenamedValues($renameMap, $actualParams));
 
         $keepOutdatedParams = false;
@@ -107,7 +107,7 @@ class Processor
             $actualParams = array_intersect_key($actualParams, $expectedParams);
         }
 
-        $envMap = empty($config['env-map']) ? array() : (array) $config['env-map'];
+        $envMap = empty($config['env-map']) ? [] : (array) $config['env-map'];
 
         // Add the params coming from the environment values
         $actualParams = array_replace($actualParams, $this->getEnvValues($envMap));
@@ -117,7 +117,7 @@ class Processor
 
     protected function getEnvValues(array $envMap)
     {
-        $params = array();
+        $params = [];
         foreach ($envMap as $param => $env) {
             $value = getenv($env);
 
@@ -141,7 +141,7 @@ class Processor
     {
         $index = &$array;
 
-        foreach(explode('.', $path) as $level) {
+        foreach (explode('.', $path) as $level) {
             $index = &$index[$level];
         }
 

@@ -21,7 +21,7 @@ class ScriptHandler
         }
 
         if (array_keys($configs) !== range(0, count($configs) - 1)) {
-            $configs = array($configs);
+            $configs = [$configs];
         }
 
         $processor = new Processor($event->getIO());
