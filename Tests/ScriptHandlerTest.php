@@ -3,9 +3,8 @@
 namespace Incenteev\ParameterHandler\Tests;
 
 use Incenteev\ParameterHandler\ScriptHandler;
-use Prophecy\PhpUnit\ProphecyTestCase;
 
-class ScriptHandlerTest extends ProphecyTestCase
+class ScriptHandlerTest extends \PHPUnit_Framework_TestCase
 {
     private $event;
     private $io;

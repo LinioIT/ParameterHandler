@@ -1,5 +1,6 @@
 composer.lock
 phpunit.xml
-vendor
-build
+vendor/
+bin/
+build/
 .php_cs.cache

@@ -16,11 +16,14 @@
     },
     "require-dev": {
         "composer/composer": "1.0.*@dev",
-        "phpspec/prophecy-phpunit": "~1.0",
+        "phpunit/phpunit": "~4.7",
         "symfony/filesystem": "~2.2"
     },
     "autoload": {
         "psr-4": { "Incenteev\\ParameterHandler\\": "" }
+    },
+    "config": {
+        "bin-dir": "bin"
     },
     "extra": {
         "branch-alias": {
