@@ -7,11 +7,16 @@ php:
     - 5.4
     - 5.5
     - 5.6
+    - 7.0
     - hhvm
 
 install: composer install
 
-script: phpunit --coverage-text --coverage-clover=coverage.clover
+script:
+  - bin/phpunit --verbose
 
-after_script:
-    - wget https://scrutinizer-ci.com/ocular.phar && php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+matrix:
+  allow_failures:
+    - php: hhvm
+    - php: 7.0
+  fast_finish: true

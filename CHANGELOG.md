@@ -1,3 +1,17 @@
+## 3.0.0 (2015-07-23)
+
+* Start of Linio fork
+* Implemented support for multiple file types: yml and php
+* Implemented support for dot notation when working with env vars
+
+Example:
+
+```json
+"env-map": {
+    "database.default.dbname": "DEFAULT_DB_NAME",
+}
+```
+
 ## 2.1.1 (2015-06-03)
 
 * Removed usage of a deprecated way to use the Yaml parser
