@@ -185,6 +185,13 @@ class Processor
             }
 
             $default = $this->fileHandler->dumpInline($message);
+
+            if (is_array($default)) {
+                $actualParams[$key] = $default;
+
+                continue;
+            }
+
             $value = $this->io->ask(sprintf('<question>%s</question> (<comment>%s</comment>): ', $key, $default), $default);
 
             $actualParams[$key] = $this->fileHandler->parseInline($value);
