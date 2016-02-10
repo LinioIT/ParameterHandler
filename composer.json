@@ -11,12 +11,12 @@
         }
     ],
     "require": {
-        "php": "~5.4",
+        "php": ">=5.4",
         "symfony/yaml": "~2.0"
     },
     "require-dev": {
-        "composer/composer": "1.0.*@dev",
-        "phpunit/phpunit": "~4.7",
+        "composer/composer": "dev-master",
+        "phpunit/phpunit": "~5.1",
         "symfony/filesystem": "~2.2"
     },
     "autoload": {
@@ -24,10 +24,5 @@
     },
     "config": {
         "bin-dir": "bin"
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.1.x-dev"
-        }
     }
 }
